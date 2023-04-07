@@ -1,4 +1,4 @@
-# VlcNotes for more info
+# A Sleek VLC Media Player activx Implementation for taking notes from video lectures with timestamps and screenshots
 
 https://ananthuthilakan.com/vlcnotes-app-the-ultimate-video-player-to-take-notes-with-timestamps-and-screenshots/
 
