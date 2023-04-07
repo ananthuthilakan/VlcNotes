@@ -509,7 +509,7 @@ Gui,SettingsGUI: Add, Button, x+1 yp w40 h30 +Center +0x200  BackgroundTrans glb
 ; Gui,SettingsGUI: Add, Text, x+2 yp w380 h32 +Center +0x200 +Border BackgroundTrans, Input Box
 ; Gui,SettingsGUI: Add, Text, xm y+1 w468 h32 +0x200  +Border  +Center, % " this is test "
 
-DragnDrop()
+
 
 
 
