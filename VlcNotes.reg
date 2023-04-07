@@ -1,0 +1,16 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\VlcNotes]
+@="URL:AutoHotKey VlcNotes Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\VlcNotes\DefaultIcon]
+@="VlcNotes.exe,1"
+
+[HKEY_CLASSES_ROOT\VlcNotes\shell]
+
+[HKEY_CLASSES_ROOT\VlcNotes\shell\open]
+
+[HKEY_CLASSES_ROOT\VlcNotes\shell\open\command]
+@="\"D:\\Lectures\\UPSC\\VlcNotesFull\\vlcNotesHelper.exe\" \"%1\""
+
