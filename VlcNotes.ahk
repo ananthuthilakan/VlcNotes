@@ -1,5 +1,5 @@
-﻿;@Ahk2Exe-SetName       	VlcNotes.exe
-;@Ahk2Exe-SetVersion    	0.2.2.0 	
+;@Ahk2Exe-SetName       	VlcNotes.exe
+;@Ahk2Exe-SetVersion    	0.2.4.0 	
 ;@Ahk2Exe-SetDescription  	VlcNotes.App
 ;@Ahk2Exe-SetCopyright    	discretecourage#0179
 ;@Ahk2Exe-SetCompanyName  	discretecourage#0179
@@ -8,12 +8,23 @@
 
 ;=============== CURRENT VERSION ==================================
 
-Current_version:="v0.2.2.0"  ; In github always create new release tag with same name
+Current_version:="v0.2.4.0"  ; In github always create new release tag with same name
 
 ;==================================================================
 
 Changelog =  
 (
+[ v0.2.4.0 ] ====================================================
+- playlist from yt
+- Fixed the title not saving with yt playlist
+
+[ v0.2.3.0 ] ====================================================
+
+- Double buffer to reduce flicker 
+- fixed double buffer conflict with borderless toggle
+- double buffer will also fix the white screen problem ( pls report )
+
+=================================================================
 [ v0.2.2.0 ] ====================================================
 
 - added support for youtube shortlinks
@@ -132,7 +143,7 @@ Global UserVariables := {"n" : { "Seektime":10
 
 
 
-Global Credits := "Credits : `n Vlc media player `n evilC - AppFactory  `n just me - Imagebutton  `n iseahound - ImagePut `niseahound - OCR`n Geek - cJSON`nnickstokes `nShinesOverlay `ncyruz `n unknown"
+Global Credits := "Credits : `n Vlc media player `n evilC - AppFactory  `n just me - Imagebutton  `n iseahound - ImagePut `niseahound - OCR`n Geek - cJSON`nnickstokes `n unknown"
 
 ; FileGetVersion, Version, %A_ScriptName%
 ; MsgBox, % "Version --" Version
@@ -509,7 +520,7 @@ Gui,SettingsGUI: Add, Button, x+1 yp w40 h30 +Center +0x200  BackgroundTrans glb
 ; Gui,SettingsGUI: Add, Text, x+2 yp w380 h32 +Center +0x200 +Border BackgroundTrans, Input Box
 ; Gui,SettingsGUI: Add, Text, xm y+1 w468 h32 +0x200  +Border  +Center, % " this is test "
 
-
+; DragnDrop()
 
 
 
@@ -531,7 +542,7 @@ Gui, Color,c191919,c191919
 
 Gui, +AlwaysOnTop  +Resize MinSize%widthMin%x%heightMin%  -DPIScale  -caption ; +Border ;+toolwindow ; +Border
 ; if (UserVariables.b["Hide_TaskBar_icon"])
-; Gui, +toolwindow
+Gui, +E0x02000000 +E0x00080000
 Gui, Margin , 0 , 0
 Gui,Font, c858585
 FontScaling := Round(96/A_ScreenDPI*10) + 5
@@ -982,10 +993,17 @@ return
 
 lbl_Borderless_window_Toggle:
 Titlebartoggle:=!Titlebartoggle
-if (Titlebartoggle)
+if (Titlebartoggle) {
+Gui, -E0x02000000 -E0x00080000
 Gui, +Resize ; +Caption
+Gui, +E0x02000000 +E0x00080000
+}
 else
+    {
+Gui, -E0x02000000 -E0x00080000
 Gui, -Resize ; -Caption
+Gui, +E0x02000000 +E0x00080000
+    }
 return
 
 
@@ -2835,8 +2853,76 @@ return
 ; :://ol::
 ; RecievedFilePath := cInputBox("Open Link", "Enter a valid link","Link" ,1,0)
 
+lbl_Create_playlist_youtube:
+if (InStr(RecievedFilePath, "list=")) && (InStr(RecievedFilePath, "watch"))
+    {
+        link := RecievedFilePath
+        ; link := "https://www.youtube.com/watch?v=EnmLV21siwM&list=PLg-FQHQ45kyUeekCS4HUpRzqwPof2ZrsG&index=2"
+        pos1 := InStr(link, "&list=") + 6
+        pos2 := InStr(link, "&index=")
+         playlistId := (InStr(link, "&index=")) ? SubStr(link, pos1, pos2 - pos1) : SubStr(link, pos1)
+        yt_playlist_link:= "https://www.youtube.com/playlist?list=" . playlistId
+        
+    }
+Else if (InStr(RecievedFilePath, "list=")) && (InStr(RecievedFilePath, "playlist?")) 
+    {
+
+        yt_playlist_link:= RecievedFilePath
+    }
+
+    ; getting each video link 
+    Command = yt-dlp --flat-playlist --get-title --get-url --no-warnings %yt_playlist_link%
+    tempvar :=""
+    ; SetWorkingDir, %A_ScriptDir%
+    tempvar := StdOutToVar(comspec .  " /c " . Command)
+    if (RegExMatch(tempvar, "'yt-dlp' is not recognized as an internal or external command")) || (RegExMatch(tempvar, "Unable to extract uploader id")) {
+        Gui +OwnDialogs
+        MsgBox 0x30, yt-dlp need to updated, Yt-dlp need to be updated !`nOpen settings and  Click ON update yt-dlp.`n`nyt-dlp should be used at your own risk`,`nI dont guarentee anything with regards to yt-dlp !
+        gui, Hide
+        gui,SettingsGUI: Show
+        ; return
+    }
+        
+    ; SetWorkingDir, %A_MyDocuments%\VlcNotes\
+    youtube_playlistarr:=strsplit(tempvar,"`n")
+
+
+    PlaylistLoad:=[] , m:=0
+    loop, % youtube_playlistarr.MaxIndex() - 1
+        {
+            ;    msgbox,% youtube_playlistarr[A_index]
+        If (A_Index & 1) {
+           temparr:={"Name":"dummyName","Url":"dummyurl","timelastleft":"0"}
+           , temparr.Name:=youtube_playlistarr[A_Index]
+           , m:=m+1
+        }
+        Else
+            {
+            temparr.Url:=youtube_playlistarr[A_index]
+           , PlaylistLoad[m]:=temparr
+           , temparr:=""
+        }
+        }
+        Goto, lbl_Saveplaylist
+return
+
+
+
+
 OpenDropedLink:
-RecievedFilePath := DragnDropGet()
+ RecievedFilePath := DragnDropGet()
+if (InStr(RecievedFilePath, "list=")) {
+    Gui +OwnDialogs
+MsgBox 0x40044, This is a Playlist link, This video is part of a playlist`n`nDo you want to Create a Playlist and play from 1st video ?
+
+IfMsgBox Yes, {
+    goto, lbl_Create_playlist_youtube
+    return
+} Else IfMsgBox No, {
+
+}
+   
+}
 LaunchDropedFIles:
 SplitPath, RecievedFilePath, OutFileNamet, OutDirt, OutExtensiont, OutNameNoExtt, OutDrivet
 OutputDebug, % "OutFileNamet => " OutFileNamet "`n" "OutDirt =>" OutDirt "`n" "OutExtensiont =>" OutExtensiont "`n" "OutNameNoExtt =>" OutNameNoExtt "`n" "OutDrivet =>" OutDrivet
