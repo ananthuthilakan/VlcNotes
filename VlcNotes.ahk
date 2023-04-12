@@ -142,8 +142,7 @@ Global UserVariables := {"n" : { "Seektime":10
 
 
 
-
-Global Credits := "Credits : `n Vlc media player `n evilC - AppFactory  `n just me - Imagebutton  `n iseahound - ImagePut `niseahound - OCR`n Geek - cJSON`nnickstokes `n unknown"
+Global Credits := "Credits : `n Vlc media player `n evilC - AppFactory  `n just me - Imagebutton  `n iseahound - ImagePut `niseahound - OCR`n Geek - cJSON`nnickstokes `nShinesOverlay `ncyruz `n unknown"
 
 ; FileGetVersion, Version, %A_ScriptName%
 ; MsgBox, % "Version --" Version
