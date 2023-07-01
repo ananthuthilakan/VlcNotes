@@ -28,8 +28,6 @@ Changelog =
 [ v0.2.2.0 ] ====================================================
 
 - added support for youtube shortlinks
-- added support for most of the yt-dlp supported websits
-- read more here https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md
 - added credits for nickstokes
 
 ==================================================================
